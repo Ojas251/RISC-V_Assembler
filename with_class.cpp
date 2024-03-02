@@ -25,7 +25,7 @@ public:
         smatch match;
         string matchs;
         int value;
-        regex pattern("^(\\s*)[,]{0,1}x(\\d|[1-2]\\d|3[0-1])(?=[ ,]|$)");
+        regex pattern("^(\\s*)[,]{0,1}(\\s*)x(\\d|[1-2]\\d|3[0-1])(?=[ ,]|$)");
         std::regex_search(inst,match,pattern);
         if(match.size() == 0){
             cout<<"Error\n";
@@ -64,6 +64,7 @@ void R(string Inst){
     Inst = Inst.substr(0, pos) + Inst.substr(pos + matchs.length());
     matchs.erase(0, matchs.find_first_not_of(" \t"));
     matchs.erase(0, matchs.find_first_not_of(","));
+    matchs.erase(0, matchs.find_first_not_of(" \t"));
     matchs.erase(0, matchs.find_first_not_of("x"));
     rs1_value=stoi(matchs);
     cout << "rs1_value:"<<rs1_value<<"\n";
@@ -78,6 +79,7 @@ void R(string Inst){
     Inst = Inst.substr(0, pos) + Inst.substr(pos + matchs.length());
     matchs.erase(0, matchs.find_first_not_of(" \t"));
     matchs.erase(0, matchs.find_first_not_of(","));
+    matchs.erase(0, matchs.find_first_not_of(" \t"));
     matchs.erase(0, matchs.find_first_not_of("x"));
     rs2_value=stoi(matchs);
     cout << "rs2_value:"<<rs2_value<<"\n";
