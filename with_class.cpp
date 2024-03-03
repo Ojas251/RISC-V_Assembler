@@ -110,6 +110,30 @@ bitset<32> Iformat(bitset<32> inst, string asm_instr) {
     return inst;
 }
 
+
+bitset<32> Sformat(bitset<32> inst, string asm_instr) {
+    smatch match;
+    regex pattern(R"(x([1-2]\d|3[01]|\d))");
+    regex_search(asm_instr, match, pattern);
+    bitset<32> rs1(stoi(match.str().substr(1)));
+    rs1<<=15;
+    asm_instr = match.suffix();
+    regex pattern_imm(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0))");
+    regex_search(asm_instr, match, pattern_imm);
+    asm_instr = match.suffix();
+    regex_search(asm_instr, match, pattern);
+    bitset<32> rs2(stoi(match.str().substr(1)));
+    rs2<<=20;
+    bitset<32> imm(ToBin(match.str()));
+    bitset<32> imm1=(imm>>5)<<25, imm2=(imm & bitset<32> (31))<<7;
+    inst|=rs1;
+    inst|=rs2;
+    inst|=imm1;
+    inst|=imm2;
+    cout<<inst<<endl;
+    return inst;
+}
+
 int main(){
     vector<pair<string,char>> formats = {
         {"add",'R'},
