@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <regex>
-#include <algorithm>
 #include <bitset>
 using namespace std;
 bitset<32> ToBin(string imm) {
