@@ -235,6 +235,57 @@ bitset<32> SB(bitset<32> inst, string asm_instr ){
     return inst;
 }
 
+
+bitset<32> I_L(bitset<32> inst, string asm_instr){
+    smatch match;
+    regex pattern(R"(x([1-2]\d|3[01]|\d))"); 
+    regex_search(asm_instr, match, pattern);
+    bitset<32> rd(stoi(match.str().substr(1)));
+    rd<<=7;
+    asm_instr = match.suffix();
+   string matchs;
+   regex pattern2(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0)\()");
+    regex_search(asm_instr,match,pattern2);
+    if(match.size()==0){
+        cout<<"no match\n";
+    }
+    matchs=match.str();
+    matchs.erase(matchs.size()-1,1);
+    regex pattern3(R"(0x)");
+    regex_search(matchs,match,pattern3);
+    long long int offset;
+    long long int offsetupper = 2047 ;
+    long long int offsetlower = -2048 ;
+    if(match.size()!=0){
+         offset = stoi(matchs, nullptr, 16);
+    }
+    else{
+        offset = stoi(matchs, nullptr, 10);
+    }
+    if(offset > offsetupper || offset < offsetlower){
+        cout<<"ERROR\n";
+        return inst;
+    }
+     bitset<32> off(offset);
+    off<<=20;
+    regex pattern1(R"(\(x([1-2]\d|3[01]|\d)\))");  
+    regex_search(asm_instr, match, pattern1);
+    if(!match.empty()){          
+    matchs=match.str();
+    matchs.erase(0,1);
+    matchs.erase(matchs.size()-1,1);
+    matchs.erase(0,1);
+    cout<< matchs<<endl;
+    bitset<32> rs1(stoi(matchs));
+    rs1<<=15;
+    //cout << "rs1:"<<rs1<<",offset:"<<off<<endl;
+    inst = inst | off;
+    inst = inst | rs1;
+    inst = inst | rd;}
+    return inst;
+
+}
+
 bitset<32> mcode(string asm_inst){
     bitset<32> inst(0);
     if (regex_match(asm_inst, add)) {
