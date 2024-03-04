@@ -34,8 +34,8 @@ regex beq(R"(^[ \t]*beq[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[
 regex bne(R"(^[ \t]*bne[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
 regex bge(R"(^[ \t]*bge[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
 regex blt(R"(^[ \t]*blt[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
-regex lui(R"(^[ \t]*lui[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex auipc(R"(^[ \t]*auipc[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex lui(R"(^[ \t]*lui[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([1-9]\d*|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex auipc(R"(^[ \t]*auipc[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([1-9]\d*|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
 regex jal(R"(^[ \t]*jal[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([a-zA-Z_]\w*)[ \t]*$)");
 
 
@@ -137,6 +137,24 @@ bitset<32> I(bitset<32> inst, string asm_instr) {
     return inst;
 }
 
+
+bitset<32> U(bitset<32> inst, string asm_instr) {
+    smatch match;
+    regex pattern(R"(x([1-2]\d|3[01]|\d))");
+    regex_search(asm_instr, match, pattern);
+    bitset<32> rd(stoi(match.str().substr(1)));
+    rd<<=7;
+    asm_instr = match.suffix();
+    regex pattern_imm(R"((0x[\dA-Fa-f]{1,8}|[1-9]\d*|0))");
+    regex_search(asm_instr, match, pattern_imm);
+    bitset<32> imm(ToBin(match.str()));
+    cout << imm << endl;
+    imm<<=12;
+    inst|=rd;
+    inst|=imm;
+    // cout<<inst<<endl;
+    return inst;
+}
 
 bitset<32> S(bitset<32> inst, string asm_instr) {
     smatch match;
@@ -270,9 +288,11 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, lui)) {
         inst = bitset<32>("00000000000000000000000000110111");
+        inst = U(inst, asm_inst);
         }
     else if (regex_match(asm_inst, auipc)) {
         inst = bitset<32>("00000000000000000000000000010111");
+        inst = U(inst, asm_inst);
         }
     else if (regex_match(asm_inst, jal)) {
         inst = bitset<32>("00000000000000000000000001101111");
