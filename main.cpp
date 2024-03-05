@@ -354,16 +354,19 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, lb)) {
         inst = bitset<32>("00000000000000000000000000000011");
-        // inst = S(inst, asm_inst);
+        inst = I_L(inst, asm_inst);
         }
     else if (regex_match(asm_inst, lw)) {
         inst = bitset<32>("00000000000000000010000000000011");
+        inst = I_L(inst,asm_inst);
         }
     else if (regex_match(asm_inst, ld)) {
         inst = bitset<32>("00000000000000000011000000000011");
+        inst = I_L(inst,asm_inst);
         }
     else if(regex_match(asm_inst,lh)) {
         inst = bitset<32>("0000000000000000000100000000011"); 
+        inst = I_L(inst,asm_inst);
         }
     else if (regex_match(asm_inst, addi)) {
         inst = bitset<32>("0000000000000000000000000010011");
