@@ -30,7 +30,7 @@ regex ld(R"(^[ \t]*ld[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[
 regex addi(R"(^[ \t]*addi[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
 regex andi(R"(^[ \t]*andi[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
 regex ori(R"(^[ \t]*ori[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex jalr(R"(^[ \t]*jalr[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex jalr(R"(^[ \t]*jalr[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
 regex beq(R"(^[ \t]*beq[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
 regex bne(R"(^[ \t]*bne[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
 regex bge(R"(^[ \t]*bge[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
@@ -212,7 +212,7 @@ bitset<32> SB(bitset<32> inst, string asm_instr ){
     offset = offset - ic;    // by how much the branching is to be done; checking if it's in range?
     bitset<32> off(offset);
     bitset<32> off1=off;
-    off1>>=11;
+    off1>>=12;
     off1<<=31;
     inst = inst | off1;  // 12th bit
     off1 = off;
@@ -226,7 +226,7 @@ bitset<32> SB(bitset<32> inst, string asm_instr ){
     off1>>=20;
     inst = inst | off1; // 4 - 1 bits
     off1 = off;
-    off1>>=10;
+    off1>>=11;
     off1<<=31;
     off1>>=24;
     inst = inst | off1;
@@ -234,7 +234,52 @@ bitset<32> SB(bitset<32> inst, string asm_instr ){
     inst = inst | rs2 ; // rs2
     return inst;
 }
-
+bitset<32> UJ(bitset<32> inst, string asm_instr){
+    smatch match;
+    regex pattern(R"(x([1-2]\d|3[01]|\d))");
+    regex_search(asm_instr, match, pattern);
+    bitset<32> rd(stoi(match.str().substr(1)));
+    rd<<=7;
+    asm_instr = match.suffix();
+    regex patt_label(R"(\s*,\s*[_a-zA-Z]\w*\s*$)");
+    regex_search(asm_instr,match,patt_label);
+    string matchs;
+    matchs=match.str();
+    matchs.erase(0,1);
+    auto it = find_if(labels.begin(), labels.end(), [matchs](const pair<string, long int>& p) {
+        return p.first == matchs;
+    });
+    long int offset ;
+    if (it != labels.end()) {
+        offset=it->second;
+    } else {
+        cout<< "Label of the branch instruction not found." << endl;
+        return inst;
+    }
+    offset = offset - ic;
+    bitset<32> off(offset);
+    bitset<32> off1=off;
+    off1>>=20;
+    off1<<=31;
+    inst=inst | off1;  // 20th bit
+    off1=off;
+    off1>>=1;
+    off1<<=22;
+    off1>>=1;
+    inst=inst | off1; // 10-1 bits
+    off1=off;
+    off1>>=11;
+    off1<<=31;
+    off1>>=11;
+    inst=inst | off1; // 11th bit
+    off1=off;
+    off1>>=12;
+    off1<<=24;
+    off1>>=12;
+    inst=inst | off1; // 19-12 bits
+    inst = inst | rd ; // rd
+    return inst;
+}
 
 bitset<32> I_L(bitset<32> inst, string asm_instr){
     smatch match;
@@ -358,15 +403,15 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, lw)) {
         inst = bitset<32>("00000000000000000010000000000011");
-        inst = I_L(inst,asm_inst);
+        inst = I_L(inst, asm_inst);
         }
     else if (regex_match(asm_inst, ld)) {
         inst = bitset<32>("00000000000000000011000000000011");
-        inst = I_L(inst,asm_inst);
+        inst = I_L(inst, asm_inst);
         }
     else if(regex_match(asm_inst,lh)) {
-        inst = bitset<32>("0000000000000000000100000000011"); 
-        inst = I_L(inst,asm_inst);
+        inst = bitset<32>("0000000000000000000100000000011");
+        inst = I_L(inst, asm_inst); 
         }
     else if (regex_match(asm_inst, addi)) {
         inst = bitset<32>("0000000000000000000000000010011");
@@ -382,6 +427,7 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, jalr)) {
         inst = bitset<32>("00000000000000000000000001100111");
+        inst = I_L(inst, asm_inst);
         }
     else if (regex_match(asm_inst, bne)) {
         inst = bitset<32>("00000000000000000001000001100011");
@@ -409,6 +455,7 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, jal)) {
         inst = bitset<32>("00000000000000000000000001101111");
+        inst = UJ(inst, asm_inst);
         }
     else {
         inst = bitset<32>(0);
