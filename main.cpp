@@ -79,7 +79,9 @@ bitset<32> ToBin(string imm) {
 
 string toHex(int ic){
     stringstream ss;
-    ss << "0x" << hex << ic;
+    ss << hex << ic;
+    while (ss.str().length() < 10) ss.str("0" + ss.str());
+    ss << "0x";
     return ss.str();
 }
 
@@ -459,7 +461,7 @@ bitset<32> mcode(string asm_inst){
         }
     else {
         inst = bitset<32>(0);
-        cout << "Error: Instruction not found/ Invalid instruction" << endl;
+        cout << "Error: Instruction ("<< asm_inst <<") not found/ Invalid instruction" << endl;
         }
     return inst;
 }
@@ -517,6 +519,8 @@ int main() {
     regex patt_int(R"((0x(\d|[a-f]|[A-F])+|\d+)( |$))");
     
     regex patt_str(R"("\w*")");
+
+    regex patt_comments("#.*");
    
     regex pattern("^[a-z]{2,5}\\b");
    
@@ -524,11 +528,11 @@ int main() {
     //ofstream mcFile("mc.txt");
 
     while(getline(file,line)){
-    
+        line = regex_replace(line, patt_comments, "");
         regex_search(line,match,patt_all);
         
         if(match.size()!=0){
-         
+
             regex_search(line,match,patt_text);
             if(match.size()!=0){
                 
@@ -686,11 +690,12 @@ int main() {
     tempFile.close();
     ifstream file1("temp.s");
 
+    mcFile << endl;
     bitset<32> mc(0);
     while (getline(file1, line)) {
         //cout << line << endl;
         mc = mcode(line);
-        mcFile << toHex(ic) << " " << BinToHex(mc) << endl;
+        mcFile << toHex(ic) << " 0x" << BinToHex(mc) << endl;
         //cout << toHex(ic) << " " << hex<< mc.to_ullong() << endl;
         ic+=4;
     }
