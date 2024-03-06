@@ -4,6 +4,7 @@
 #include <string>
 #include <bitset>
 #include <sstream>
+#include <stdint.h>
 
 using namespace std;
 
@@ -243,11 +244,10 @@ bitset<32> UJ(bitset<32> inst, string asm_instr){
     bitset<32> rd(stoi(match.str().substr(1)));
     rd<<=7;
     asm_instr = match.suffix();
-    regex patt_label(R"(\s*,\s*[_a-zA-Z]\w*\s*$)");
+    regex patt_label(R"([_a-zA-Z]\w*)");
     regex_search(asm_instr,match,patt_label);
     string matchs;
     matchs=match.str();
-    matchs.erase(0,1);
     auto it = find_if(labels.begin(), labels.end(), [matchs](const pair<string, long int>& p) {
         return p.first == matchs;
     });
@@ -485,26 +485,34 @@ int main() {
     //bitset <32> mc;
     long int text=0x0; 
     long long int data=0x10000000;
-    long long int datav;
+    int64_t datav;
     long  int lowlimit=0xffffffff;
     long  int uplimit=0x7fffffff;
+    long int uplimitdec= 2147483647;
+    long int lowlimitdec = -2147483648;
     long long int lowlimitd=0xffffffffffffffff;
     long long int uplimitd=0x7fffffffffffffff;
-    long int lowlimith=0x0;
-    long int uplimith=0xffff;
+    long long int uplimitdecd=9223372036854775807;
+    int64_t lowlimitdecd = INT64_C(-9223372036854775807);
+    int lowlimith=0x0;
+    int uplimith=0xffff;
+    int lowlimitdech=-32768;
+    int uplimitdech=32767;
     int lowlimitb=0x0;
     int uplimitb=0xff;
+    int lowlimitdecb=-128;
+    int uplimitdecb=127;
 
     string hexdata,hexdatav;
 
    
-    regex patt_all(R"(^\s*(\.text\s*([:]|$)|\.data\s*([:]|$)|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
+    regex patt_all(R"(^\s*(\.text\s*([:]|$)|\.data\s*(:){0,1}\s*|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
     
-    regex patt_text(R"(^\s*\.text([:]|$))"); 
+    regex patt_text(R"(^\s*\.text\s*(:){0,1})"); 
    
-    regex patt_data(R"(^\s*\.data([:]|$))");
+    regex patt_data(R"(^\s*\.data\s*(:){0,1})");
     
-    regex patt_label(R"(^\s*[_a-zA-Z]\w*\s*:\s*$)");
+    regex patt_label(R"(^\s*[_a-zA-Z]\w*\s*:\s*)");
    
     regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.word)");
     
@@ -516,13 +524,15 @@ int main() {
     
     regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.asciz)");
     
-    regex patt_int(R"((0x(\d|[a-f]|[A-F])+|\d+)( |$))");
+    regex patt_int(R"((0x(\d|[a-f]|[A-F])+|\d+)\s*)");
     
-    regex patt_str(R"("\w*")");
+    regex patt_str(R"(".*")");
 
     regex patt_comments("#.*");
    
-    regex pattern("^[a-z]{2,5}\\b");
+    regex pattern(R"(^\s*[a-z]{2,5}\b)");
+
+    regex pattern3(R"(0x)");
    
     ofstream tempFile("temp.s");
     //ofstream mcFile("mc.txt");
@@ -535,123 +545,172 @@ int main() {
 
             regex_search(line,match,patt_text);
             if(match.size()!=0){
-                
+               line = match.suffix();
+               cout<< line<<endl;
+               regex_search(line,match,pattern);
+               if(match.size()!=0){
+                  tempFile<<line<<"\n";
+
+                  text=text+4;
+                }
+
                continue;
             }
          
             regex_search(line,match,patt_data);
             if (match.size()!=0){
-                
+                //cout << "yes\n"<<line<<endl;
+                line = match.suffix();      
+                regex_search(line,match,pattern);
+                if(match.size()!=0){
+                  //cout<< line<<endl;
+                  tempFile<<line<<"\n";
+                  text=text+4;
+                }
                 continue;
             }
             
-            regex_search(line,match,patt_label);
-            if(match.size()!=0){
-                
-               matchs=match.str();
-               size_t found = matchs.find(":");
-                if (found != std::string::npos) {
-                matchs.erase(found);
-               }
-               labels.push_back(make_pair(matchs,text));
-               continue;
-            }
-      
             regex_search(line,match,patt_word);
             if(match.size()!=0){
-                
-                
+                stringstream ss,ss1;  
                 regex_search(line,match,patt_int);
+                line = match.suffix();
                 matchs=match.str();
-                
+                regex_search(matchs,match,pattern3);
+                if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
-                
                 if(datav<lowlimit || datav>uplimit){
                     mcFile<<"Error";
                     continue;
                 } 
-                stringstream ss,ss1;
                 ss << hex << data;
                 hexdata = ss.str();
- 
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
-
-                
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
+                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
+                else{
+                //datav=stoi(matchs,nullptr,10);
+                datav=stoll(matchs);
+                if(datav<lowlimitdec || datav>uplimitdec){
+                    mcFile<<"Error";
+                    continue;
+                }
+                ss << hex << data;
+                hexdata = ss.str();
+                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;
+                }
                 data=data+4;
+                regex_search(line,match,pattern);
+                 if(match.size()!=0){
+                 mcFile<<"Error"<<"\n";}
                 continue;
             }
            
              regex_search(line,match,patt_dword);
             if(match.size()!=0){
-                
+                stringstream ss,ss1;
                 regex_search(line,match,patt_int);
+                line = match.suffix();
                 matchs=match.str();
+                regex_search(matchs,match,pattern3);
+                if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
                 if(datav<lowlimitd || datav>uplimitd){
-                    mcFile<<"Error";
-                }
-                
-                
-                   
-                
-                stringstream ss,ss1;
+                   mcFile<<"Error"<<"\n";;
+                } 
                 ss << hex << data;
                 hexdata = ss.str();
- 
+                
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
 
                 
                 mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
-                 data=data+8;
+                }
+                else{
+                datav=stoll(matchs);
+                if(datav<lowlimitdecd || datav>uplimitdecd){
+                    mcFile<<"Error";
+                    continue;
+                }
+                ss << hex << data;
+                hexdata = ss.str();
+                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;   
+                }
+                data=data+8;
+                regex_search(line,match,pattern);
+                if(match.size()!=0){
+                mcFile<<"Error"<<"\n";}
                 continue;
             }
             regex_search(line,match,patt_half);
             if(match.size()!=0){
-                
+                stringstream ss,ss1;
                 regex_search(line,match,patt_int);
+                line = match.suffix();
                 matchs=match.str();
+                regex_search(matchs,match,pattern3);
+                if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
                 if(datav<lowlimith || datav>uplimith){
-                    mcFile<<"Error";
+                    mcFile<<"Error"<<"\n";;
                     continue;
                 }   
-                stringstream ss,ss1;
                 ss << hex << data;
                 hexdata = ss.str();
  
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
 
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
+                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
+                else{
+                datav=stoll(matchs);
+                if(datav<lowlimitdech || datav>uplimitdech){
+                    mcFile<<"Error";
+                    continue;
+                }
+                ss << hex << data;
+                hexdata = ss.str();
+                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;   
+                }
                 data=data+2;
+                regex_search(line,match,pattern);
+                 if(match.size()!=0){
+                mcFile<<"Error"<<"\n";}
                 continue;
             }
             
             regex_search(line,match,patt_byte);
             if(match.size()!=0){
-                
+                stringstream ss,ss1;
                 regex_search(line,match,patt_int);
+                line = match.suffix();
                 matchs=match.str();
+                regex_search(matchs,match,pattern3);
+                if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
                 if(datav<lowlimitb || datav>uplimitb){
-                    mcFile<<"Error";
+                    mcFile<<"Error"<<"\n";
                 }
-                
-                    
-                
-                stringstream ss,ss1;
                 ss << hex << data;
                 hexdata = ss.str();
- 
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
-
-                
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
+                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
+                else{
+                datav=stoll(matchs);
+                if(datav<lowlimitdecb || datav>uplimitdecb){
+                    mcFile<<"Error";
+                    continue;
+                }
+                ss << hex << data;
+                hexdata = ss.str();
+                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;      
+                }
                 data=data+1;
+                regex_search(line,match,pattern);
+                 if(match.size()!=0){
+                mcFile<<"Error"<<"\n";}
                 continue;
             }
             
@@ -660,8 +719,9 @@ int main() {
             if(match.size()!=0){
                 
                 regex_search(line,match,patt_str);
+                line=match.suffix();
                 matchs=match.str();
-               matchs.erase(0,1);
+                matchs.erase(0,1);
                 matchs.erase(matchs.size() - 1, 1);
                 stringstream ss;
                 ss << hex << data;
@@ -669,15 +729,35 @@ int main() {
 
                 mcFile<<"0x"<<hexdata<<" "<<matchs<<"\n";
                 data=data+matchs.size();
+                regex_search(line,match,pattern);
+                 if(match.size()!=0){
+                mcFile<<"Error"<<"\n";}
                 continue;
             }
+            regex_search(line,match,patt_label);
+            if(match.size()!=0){
+                
+               matchs=match.str();
+               line = match.suffix(); //remove the label from the line
+               //cout<< line<<endl;
+               size_t found = matchs.find(":");
+                if (found != std::string::npos) {
+                matchs.erase(found);
+               }
+               labels.push_back(make_pair(matchs,text));
+               regex_search(line,match,pattern);
+                if(match.size()!=0){
+                  tempFile<<line<<"\n";
+                  text=text+4;
+                }
+               continue;
+            }
+      
         }
         else{
-             
               regex_search(line,match,pattern);
               if(match.size()!=0){
                   tempFile<<line<<"\n";
-
                   text=text+4;
               }
            }
