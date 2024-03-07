@@ -5,7 +5,6 @@
 #include <bitset>
 #include <sstream>
 #include <stdint.h>
-
 using namespace std;
 
 regex add(R"(^[ \t]*add[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
@@ -486,20 +485,12 @@ int main() {
     long int text=0x0; 
     long long int data=0x10000000;
     int64_t datav;
-    long  int lowlimit=0xffffffff;
-    long  int uplimit=0x7fffffff;
     long int uplimitdec= 2147483647;
     long int lowlimitdec = -2147483648;
-    long long int lowlimitd=0xffffffffffffffff;
-    long long int uplimitd=0x7fffffffffffffff;
     long long int uplimitdecd=9223372036854775807;
     int64_t lowlimitdecd = INT64_C(-9223372036854775807);
-    int lowlimith=0x0;
-    int uplimith=0xffff;
     int lowlimitdech=-32768;
     int uplimitdech=32767;
-    int lowlimitb=0x0;
-    int uplimitb=0xff;
     int lowlimitdecb=-128;
     int uplimitdecb=127;
 
@@ -524,7 +515,7 @@ int main() {
     
     regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.asciz)");
     
-    regex patt_int(R"((0x(\d|[a-f]|[A-F])+|\d+)\s*)");
+    regex patt_int(R"(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*)");
     
     regex patt_str(R"(".*")");
 
@@ -578,8 +569,11 @@ int main() {
                 matchs=match.str();
                 regex_search(matchs,match,pattern3);
                 if(match.size()!=0){
-                datav=stoi(matchs, nullptr, 16);
-                if(datav<lowlimit || datav>uplimit){
+                datav=stoi(matchs, nullptr, 16);}
+                else{
+                datav=stoll(matchs); 
+                }
+                if(datav<lowlimitdec || datav>uplimitdec){
                     mcFile<<"Error";
                     continue;
                 } 
@@ -587,18 +581,10 @@ int main() {
                 hexdata = ss.str();
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
-                else{
-                //datav=stoi(matchs,nullptr,10);
-                datav=stoll(matchs);
-                if(datav<lowlimitdec || datav>uplimitdec){
-                    mcFile<<"Error";
-                    continue;
+                if(hexdatav.size()>=16){
+                      hexdatav.erase(0, 8);
                 }
-                ss << hex << data;
-                hexdata = ss.str();
-                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;
-                }
+                 mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
                 data=data+4;
                 regex_search(line,match,pattern);
                  if(match.size()!=0){
@@ -615,28 +601,18 @@ int main() {
                 regex_search(matchs,match,pattern3);
                 if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
-                if(datav<lowlimitd || datav>uplimitd){
+                }
+                else{
+                datav=stoll(matchs);   
+                }
+                if(datav<lowlimitdecd || datav>uplimitdecd){
                    mcFile<<"Error"<<"\n";;
                 } 
                 ss << hex << data;
                 hexdata = ss.str();
-                
                 ss1 << hex << datav;
-                hexdatav = ss1.str();
-
-                
+                hexdatav = ss1.str(); 
                 mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
-                }
-                else{
-                datav=stoll(matchs);
-                if(datav<lowlimitdecd || datav>uplimitdecd){
-                    mcFile<<"Error";
-                    continue;
-                }
-                ss << hex << data;
-                hexdata = ss.str();
-                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;   
-                }
                 data=data+8;
                 regex_search(line,match,pattern);
                 if(match.size()!=0){
@@ -651,28 +627,22 @@ int main() {
                 matchs=match.str();
                 regex_search(matchs,match,pattern3);
                 if(match.size()!=0){
-                datav=stoi(matchs, nullptr, 16);
-                if(datav<lowlimith || datav>uplimith){
+                datav=stoi(matchs, nullptr, 16);}
+                else{
+                datav=stoll(matchs);   
+                }
+                if(datav<lowlimitdech || datav>uplimitdech){
                     mcFile<<"Error"<<"\n";;
                     continue;
                 }   
                 ss << hex << data;
                 hexdata = ss.str();
- 
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
-
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
-                else{
-                datav=stoll(matchs);
-                if(datav<lowlimitdech || datav>uplimitdech){
-                    mcFile<<"Error";
-                    continue;
+                 if(hexdatav.size()>=16){
+                      hexdatav.erase(0, 12);
                 }
-                ss << hex << data;
-                hexdata = ss.str();
-                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;   
-                }
+                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
                 data=data+2;
                 regex_search(line,match,pattern);
                  if(match.size()!=0){
@@ -689,24 +659,21 @@ int main() {
                 regex_search(matchs,match,pattern3);
                 if(match.size()!=0){
                 datav=stoi(matchs, nullptr, 16);
-                if(datav<lowlimitb || datav>uplimitb){
+                }
+                else{
+                datav=stoll(matchs);     
+                }
+                if(datav<lowlimitdecb || datav>uplimitdecb){
                     mcFile<<"Error"<<"\n";
                 }
                 ss << hex << data;
                 hexdata = ss.str();
                 ss1 << hex << datav;
                 hexdatav = ss1.str();
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";}
-                else{
-                datav=stoll(matchs);
-                if(datav<lowlimitdecb || datav>uplimitdecb){
-                    mcFile<<"Error";
-                    continue;
+                if(hexdatav.size()>=16){
+                      hexdatav.erase(0,14);
                 }
-                ss << hex << data;
-                hexdata = ss.str();
-                mcFile<<"0x"<<hexdata<<" "<<datav<<endl;      
-                }
+                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
                 data=data+1;
                 regex_search(line,match,pattern);
                  if(match.size()!=0){
