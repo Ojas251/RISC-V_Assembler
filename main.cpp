@@ -45,6 +45,11 @@ long int pc=0, ic=0;
 bitset<32> ToBin(string imm,int para) {
     bitset<12> bin(0);
     int neg=0,i;
+     long int up12,low12,up20,low20,immval;
+    up12=2047; 
+    low12=-2048;
+    up20=524287;
+    low20=-524288;
     if (imm[0] == '-') {
         imm = imm.substr(1);
         neg=1;
@@ -73,13 +78,15 @@ bitset<32> ToBin(string imm,int para) {
         if (neg==1) bin = stoi('-'+imm);
         else bin = stoi(imm);
     }
+   immval=static_cast<long>(bin.to_ulong());
+    //cout<<"imm:"<<immval<<endl;
     if(para==12){
-        if(bin.size()>12){
+        if(immval>up12 || immval<low12){
           cout<<"ERROR"<<endl; 
         }
     }
     else{
-        if(bin.size()>20){
+        if(immval>up20 || immval<low20){
           cout<<"ERROR"<<endl;
         }
     }
