@@ -42,6 +42,14 @@ regex jal(R"(^[ \t]*jal[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([a-zA-Z_]\w*)[ \
 
 long int pc=0, ic=0;
 
+void clear(ofstream& mcFile) {
+    mcFile.close();
+    mcFile.open("mc.txt", ofstream::out | ofstream::trunc);
+    mcFile.close();  
+    
+    cout << "File has been cleared.\n";
+    exit(EXIT_SUCCESS);
+}
 bitset<32> ToBin(string imm,int para) {
     bitset<12> bin(0);
     int neg=0,i;
@@ -769,6 +777,8 @@ int main() {
     while (getline(file1, line)) {
         //cout << line << endl;
         mc = mcode(line);
+        if(mc==bitset<32>(0))
+        clear(mcFile);
         mcFile << toHex(ic) << " 0x" << BinToHex(mc) << endl;
         //cout << toHex(ic) << " " << hex<< mc.to_ullong() << endl;
         ic+=4;
@@ -777,7 +787,6 @@ int main() {
     mcFile.close();
     file1.close();
 }
-
 
 
 
