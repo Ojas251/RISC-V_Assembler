@@ -563,33 +563,36 @@ int main() {
             
             regex_search(line,match,patt_word);
             if(match.size()!=0){
-                stringstream ss,ss1;  
-                regex_search(line,match,patt_int);
-                line = match.suffix();
-                matchs=match.str();
-                regex_search(matchs,match,pattern3);
-                if(match.size()!=0){
-                datav=stoi(matchs, nullptr, 16);}
-                else{
-                datav=stoll(matchs); 
+                sregex_iterator next(line.begin(), line.end(), patt_int);
+                sregex_iterator end;
+                while (next != end) {
+                    match = *next;
+                    matchs = match.str();
+                    int datav;
+                    if (regex_search(matchs, match, pattern3)) datav = stoi(matchs, nullptr, 16);
+                    else datav = stoi(matchs);
+                    if (datav < lowlimitdec || datav > uplimitdec) {
+                        mcFile << "Error: Value out of range\n";
+                        ++next;
+                        continue;
+                    }
+                    stringstream ss;
+                    ss << hex << data;
+                    string hexdata = ss.str();
+
+                    stringstream ss1;
+                    ss1 << hex << datav;
+                    string hexdatav = ss1.str();
+                    if (hexdatav.size() >= 16) hexdatav.erase(0, 8);
+
+                    mcFile << "0x" << hexdata << " " << "0x" << hexdatav << "\n";
+                    data += 4;
+                    next++;
                 }
-                if(datav<lowlimitdec || datav>uplimitdec){
-                    mcFile<<"Error";
-                    continue;
-                } 
-                ss << hex << data;
-                hexdata = ss.str();
-                ss1 << hex << datav;
-                hexdatav = ss1.str();
-                if(hexdatav.size()>=16){
-                      hexdatav.erase(0, 8);
+                regex_search(line, match, pattern);
+                if (match.size() != 0) {
+                    mcFile << "Error: Additional pattern found\n";
                 }
-                 mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
-                data=data+4;
-                regex_search(line,match,pattern);
-                 if(match.size()!=0){
-                 mcFile<<"Error"<<"\n";}
-                continue;
             }
            
              regex_search(line,match,patt_dword);
