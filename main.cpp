@@ -42,15 +42,15 @@ regex jal(R"(^[ \t]*jal[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([a-zA-Z_]\w*)[ \
 
 long int pc=0, ic=0;
 
-bitset<32> ToBin(string imm) {
+bitset<32> ToBin(string imm,int para) {
     bitset<12> bin(0);
-    int neg=0;
+    int neg=0,i;
     if (imm[0] == '-') {
         imm = imm.substr(1);
         neg=1;
     }
     if (imm[0] == '0' && imm[1] == 'x') {
-        for (int i = 2; i < imm.size(); i++) {
+        for ( i = 2; i < imm.size(); i++) {
             if (imm[i] >= '0' && imm[i] <= '9') {
                 bin <<= 4;
                 bin |= imm[i] - '0';
@@ -72,6 +72,16 @@ bitset<32> ToBin(string imm) {
     else {
         if (neg==1) bin = stoi('-'+imm);
         else bin = stoi(imm);
+    }
+    if(para==12){
+        if(bin.size()>12){
+          cout<<"ERROR"<<endl; 
+        }
+    }
+    else{
+        if(bin.size()>20){
+          cout<<"ERROR"<<endl;
+        }
     }
     bitset<32> bin32(bin.to_ulong());
     return bin32;
@@ -131,7 +141,7 @@ bitset<32> I(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str()));
+    bitset<32> imm(ToBin(match.str(),12));
     imm<<=20;
     inst|=rd;
     inst|=rs1;
@@ -150,7 +160,7 @@ bitset<32> U(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((0x[\dA-Fa-f]{1,8}|[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str()));
+    bitset<32> imm(ToBin(match.str(),20));
     cout << imm << endl;
     imm<<=12;
     inst|=rd;
@@ -168,7 +178,7 @@ bitset<32> S(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str()));
+    bitset<32> imm(ToBin(match.str(),12));
     bitset<32> imm1=(imm>>5)<<25, imm2=(imm & bitset<32>(31))<<7;
     asm_instr = match.suffix();
     regex_search(asm_instr, match, pattern);
