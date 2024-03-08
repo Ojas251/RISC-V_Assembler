@@ -737,16 +737,21 @@ int main() {
                 continue;
             }
             regex_search(line,match,patt_label);
-            if(match.size()!=0){
-                
+            if(match.size()!=0){ 
+               sregex_iterator next(line.begin(), line.end(), patt_label);
+               sregex_iterator end;
+               while (next != end) { 
+               match = *next;
                matchs=match.str();
-               line = match.suffix(); //remove the label from the line
-               //cout<< line<<endl;
                size_t found = matchs.find(":");
                 if (found != std::string::npos) {
                 matchs.erase(found);
                }
                labels.push_back(make_pair(matchs,text));
+                next++;
+                line=match.suffix();
+               }
+               line = match.suffix(); //remove the label from the line
                regex_search(line,match,pattern);
                 if(match.size()!=0){
                   tempFile<<line<<"\n";
