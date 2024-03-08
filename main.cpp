@@ -51,7 +51,7 @@ void clear(ofstream& mcFile) {
     exit(EXIT_SUCCESS);
 }
 bitset<32> ToBin(string imm,int para) {
-    bitset<12> bin(0);
+    bitset<32> bin(0);
     int neg=0,i;
      long int up12,low12,up20,low20,immval;
     up12=2047; 
@@ -522,13 +522,13 @@ int main() {
     string hexdata,hexdatav;
 
    
-    regex patt_all(R"(^\s*(\.text\s*([:]|$)|\.data\s*(:){0,1}\s*|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
+    regex patt_all(R"(^\s*(\.text\s*|\.data\s*\s*|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
     
-    regex patt_text(R"(^\s*\.text\s*(:){0,1})"); 
+    regex patt_text(R"(^\s*\.text\s*)"); 
    
-    regex patt_data(R"(^\s*\.data\s*(:){0,1})");
+    regex patt_data(R"(^\s*\.data\s*)");
     
-    regex patt_label(R"(^\s*[_a-zA-Z]\w*\s*:\s*)");
+    regex patt_label(R"(^\s*[_a-zA-Z]\w*\s*)");
    
     regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.word)");
     
@@ -620,6 +620,7 @@ int main() {
                 if (match.size() != 0) {
                     mcFile << "Error\n";
                 }
+            continue;
             }
            
              regex_search(line,match,patt_dword);
@@ -652,6 +653,11 @@ int main() {
                     data += 8;
                     next++;
                 }
+                regex_search(line, match, pattern);
+                if (match.size() != 0) {
+                    mcFile << "Error\n";
+                }
+            continue;
             }
             regex_search(line,match,patt_half);
             if(match.size()!=0){
@@ -687,6 +693,7 @@ int main() {
                 if (match.size() != 0) {
                     mcFile << "Error\n";
                 }
+            continue;
             }
             
             regex_search(line,match,patt_byte);
@@ -718,6 +725,11 @@ int main() {
                     data += 1;
                     next++;
                 }
+            regex_search(line, match, pattern);
+                if (match.size() != 0) {
+                    mcFile << "Error\n";
+                }
+            continue;
             }
             
             regex_search(line,match,patt_asciz);
