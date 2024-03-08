@@ -7,37 +7,37 @@
 #include <stdint.h>
 using namespace std;
 
-regex add(R"(^[ \t]add[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex _and(R"(^[ \t]and[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex _or(R"(^[ \t]or[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex sll(R"(^[ \t]sll[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex slt(R"(^[ \t]slt[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex sra(R"(^[ \t]sra[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex srl(R"(^[ \t]srl[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex sub(R"(^[ \t]sub[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex _xor(R"(^[ \t]xor[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex mul(R"(^[ \t]mul[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex _div(R"(^[ \t]div[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex rem(R"(^[ \t]rem[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]$)");
-regex sb(R"(^[ \t]sb[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex sw(R"(^[ \t]sw[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex sd(R"(^[ \t]sd[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex sh(R"(^[ \t]sh[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex lb(R"(^[ \t]lb[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex lw(R"(^[ \t]lw[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex lh(R"(^[ \t]lh[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex ld(R"(^[ \t]ld[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex addi(R"(^[ \t]addi[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex andi(R"(^[ \t]andi[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex ori(R"(^[ \t]ori[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex jalr(R"(^[ \t]jalr[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t](-?[1-9]\d|0|-?0x[\dA-Fa-f]{1,8})[ \t]\([ \t]*x(\d|[12]\d|3[01])[ \t]\)[ \t]*$)");
-regex beq(R"(^[ \t]beq[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w)[ \t]*$)");
-regex bne(R"(^[ \t]bne[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w)[ \t]*$)");
-regex bge(R"(^[ \t]bge[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w)[ \t]*$)");
-regex blt(R"(^[ \t]blt[ \t]+x(\d|[12]\d|3[01])([ \t],[ \t]x(\d|[12]\d|3[01])[ \t],[ \t]|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w)[ \t]*$)");
-regex lui(R"(^[ \t]lui[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t]([1-9]\d|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex auipc(R"(^[ \t]auipc[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t]([1-9]\d|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
-regex jal(R"(^[ \t]jal[ \t]+x(\d|[12]\d|3[01])[ \t][ ,][ \t]([a-zA-Z_]\w)[ \t]*$)");
+regex add(R"(^[ \t]*add[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex _and(R"(^[ \t]*and[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex _or(R"(^[ \t]*or[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex sll(R"(^[ \t]*sll[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex slt(R"(^[ \t]*slt[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex sra(R"(^[ \t]*sra[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex srl(R"(^[ \t]*srl[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex sub(R"(^[ \t]*sub[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex _xor(R"(^[ \t]*xor[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex mul(R"(^[ \t]*mul[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex _div(R"(^[ \t]*div[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex rem(R"(^[ \t]*rem[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
+regex sb(R"(^[ \t]*sb[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex sw(R"(^[ \t]*sw[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex sd(R"(^[ \t]*sd[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex sh(R"(^[ \t]*sh[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex lb(R"(^[ \t]*lb[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex lw(R"(^[ \t]*lw[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex lh(R"(^[ \t]*lh[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex ld(R"(^[ \t]*ld[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex addi(R"(^[ \t]*addi[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex andi(R"(^[ \t]*andi[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex ori(R"(^[ \t]*ori[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex jalr(R"(^[ \t]*jalr[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*(-?[1-9]\d*|0|-?0x[\dA-Fa-f]{1,8})[ \t]*\([ \t]*x(\d|[12]\d|3[01])[ \t]*\)[ \t]*$)");
+regex beq(R"(^[ \t]*beq[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
+regex bne(R"(^[ \t]*bne[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
+regex bge(R"(^[ \t]*bge[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
+regex blt(R"(^[ \t]*blt[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)([a-zA-Z_]\w*)[ \t]*$)");
+regex lui(R"(^[ \t]*lui[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([1-9]\d*|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex auipc(R"(^[ \t]*auipc[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([1-9]\d*|0|0x[\dA-Fa-f]{1,8})[ \t]*$)");
+regex jal(R"(^[ \t]*jal[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([a-zA-Z_]\w*)[ \t]*$)");
 
 
 long int pc=0, ic=0;
@@ -87,10 +87,10 @@ bitset<32> ToBin(string imm,int para) {
         else bin = stoi(imm);
     }
    immval=static_cast<long>(bin.to_ulong());
-    cout<<"imm:"<<immval<<endl;
+    //cout<<"imm:"<<immval<<endl;
     if(para==12){
         if(immval>up12 || immval<low12){
-          cout<<"ERROR range"<<endl; 
+          cout<<"ERROR"<<endl; 
         }
     }
     else{
@@ -522,7 +522,7 @@ int main() {
     string hexdata,hexdatav;
 
    
-    regex patt_all(R"(^\s*(\.text\s*(:){0,1}|\.data\s*(:){0,1}\s*|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
+    regex patt_all(R"(^\s*(\.text\s*([:]|$)|\.data\s*(:){0,1}\s*|[_a-zA-Z]\w*:|([_a-zA-Z]\w*\s*:\s*)?\.word|([_a-zA-Z]\w*\s*:\s*)?\.dword|([_a-zA-Z]\w*\s*:\s*)?\.byte|([_a-zA-Z]\w*\s*:\s*)?\.half|([_a-zA-Z]\w*\s*:\s*)?\.asciz))");
     
     regex patt_text(R"(^\s*\.text\s*(:){0,1})"); 
    
@@ -549,45 +549,37 @@ int main() {
     regex pattern(R"(^\s*[a-z]{2,5}\b)");
 
     regex pattern3(R"(0x)");
-
-    regex patt_error(R"(^\s*$)");
    
     ofstream tempFile("temp.s");
     //ofstream mcFile("mc.txt");
 
     while(getline(file,line)){
         line = regex_replace(line, patt_comments, "");
-       
         regex_search(line,match,patt_all);
-       
+        
         if(match.size()!=0){
-            
+
             regex_search(line,match,patt_text);
             if(match.size()!=0){
-                
                line = match.suffix();
                cout<< line<<endl;
                regex_search(line,match,pattern);
                if(match.size()!=0){
-                  tempFile<<line<<"\n"; 
+                  tempFile<<line<<"\n";
+
                   text=text+4;
                 }
-                else{
-                    regex_search(line,match,patt_error);
-                    if(match.size()==0){
-                        cout<<"ERROR\n";
-                    }
-                }
+
                continue;
             }
          
             regex_search(line,match,patt_data);
             if (match.size()!=0){
-               
+                //cout << "yes\n"<<line<<endl;
                 line = match.suffix();      
                 regex_search(line,match,pattern);
                 if(match.size()!=0){
-                  cout<< line<<endl;
+                  //cout<< line<<endl;
                   tempFile<<line<<"\n";
                   text=text+4;
                 }
@@ -628,33 +620,39 @@ int main() {
                 if (match.size() != 0) {
                     mcFile << "Error\n";
                 }
+                continue;
             }
            
              regex_search(line,match,patt_dword);
             if(match.size()!=0){
-                stringstream ss,ss1;
-                regex_search(line,match,patt_int);
-                line = match.suffix();
-                matchs=match.str();
-                regex_search(matchs,match,pattern3);
-                if(match.size()!=0){
-                datav=stoi(matchs, nullptr, 16);
+                sregex_iterator next(line.begin(), line.end(), patt_int);
+                sregex_iterator end;
+                while (next != end) {
+                    match = *next;
+                    matchs = match.str();
+                    long long int datav;
+                    if (regex_search(matchs, match, pattern3)) datav = stoll(matchs, nullptr, 16);
+                    else datav = stoll(matchs);
+                    if (datav < lowlimitdecd || datav > uplimitdecd) {
+                        mcFile << "Error\n";
+                        ++next;
+                        continue;
+                    }
+                    stringstream ss;
+                    ss << hex << data;
+                    string hexdata = ss.str();
+
+                    stringstream ss1;
+                    ss1 << hex << datav;
+                    while (ss1.str().length() < 16) ss1.str("0" + ss1.str());
+                    string hexdatav = ss1.str();
+
+                    if (hexdatav.size() > 16) hexdatav.erase(0, hexdatav.size()-16);
+
+                    mcFile << "0x" << hexdata << " " << "0x" << hexdatav << "\n";
+                    data += 8;
+                    next++;
                 }
-                else{
-                datav=stoll(matchs);   
-                }
-                if(datav<lowlimitdecd || datav>uplimitdecd){
-                   mcFile<<"Error"<<"\n";;
-                } 
-                ss << hex << data;
-                hexdata = ss.str();
-                ss1 << hex << datav;
-                hexdatav = ss1.str(); 
-                mcFile<<"0x"<<hexdata<<" "<<"0x"<<hexdatav<<"\n";
-                data=data+8;
-                regex_search(line,match,pattern);
-                if(match.size()!=0){
-                mcFile<<"Error"<<"\n";}
                 continue;
             }
             regex_search(line,match,patt_half);
@@ -696,7 +694,6 @@ int main() {
             
             regex_search(line,match,patt_byte);
             if(match.size()!=0){
-                
                 sregex_iterator next(line.begin(), line.end(), patt_int);
                 sregex_iterator end;
                 while (next != end) {
@@ -803,3 +800,6 @@ int main() {
     mcFile.close();
     file1.close();
 }
+
+
+
