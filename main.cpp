@@ -224,7 +224,7 @@ bitset<32> SB(bitset<32> inst, string asm_instr ){
     bitset<32> rs2(stoi(match.str().substr(1)));
     rs2<<=20;
     asm_instr = match.suffix();
-    regex patt_label(R"(\s*,\s*[_a-zA-Z]\w*\s*$)");
+    regex patt_label(R"(\s*[_a-zA-Z]\w*\s*$)");
     regex_search(asm_instr,match,patt_label);
     string matchs;
     matchs=match.str();
@@ -844,7 +844,15 @@ int main() {
                 if (found != std::string::npos) {
                 matchs.erase(found);
                }
-               labels.push_back(make_pair(matchs,text));
+               bool exists = false;
+               for(auto i:labels) if(i.first == matchs) exists = true;
+               if(!exists) labels.push_back(make_pair(matchs,text));
+               else {
+                    clear(mcFile);
+                    mcFile<<"Label already exists"<<endl;
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+               }
                 next++;
                 line=match.suffix();
                }
