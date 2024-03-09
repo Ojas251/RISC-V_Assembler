@@ -499,7 +499,7 @@ bitset<32> mcode(string asm_inst){
 int main() {
     ifstream file("help.s");     // file with the instructions
     ofstream mcFile("mc.txt");
-    
+    int dcount=0;    
     if (!file.is_open()) {
         cout << "Error opening file\n";
         return 0;
@@ -655,8 +655,27 @@ int main() {
                     match = *next;
                     matchs = match.str();
                     long long int datav;
-                    if (regex_search(matchs, match, pattern3)) datav = stoll(matchs, nullptr, 16);
-                    else datav = stoll(matchs);
+                  if (regex_search(matchs, match, pattern3)){ 
+                        try {
+                        datav = std::stoll(matchs, nullptr, 16); // Convert hexadecimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: dword data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    } else {
+                    try {
+                    datav = std::stoll(matchs); // Convert decimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoll failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: dword data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    }
                     if (datav < lowlimitdecd || datav > uplimitdecd) {
                         mcFile << "Error\n";
                         ++next;
@@ -875,7 +894,6 @@ int main() {
     
     mcFile.close();
     file1.close();
-}
 }
 
 
