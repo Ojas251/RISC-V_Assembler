@@ -42,13 +42,16 @@ regex jal(R"(^[ \t]*jal[ \t]+x(\d|[12]\d|3[01])[ \t]*[ ,][ \t]*([a-zA-Z_]\w*)[ \
 
 long int pc=0, ic=0;
 
-void clear(ofstream& mcFile) {
-    mcFile.close();
-    mcFile.open("mc.txt", ofstream::out | ofstream::trunc);
-    mcFile.close();  
+ofstream& clear(ofstream& mcFile) {
+    mcFile.close(); // Close the file
+    mcFile.open("mc.txt", ofstream::out | ofstream::trunc); // Reopen the file in truncate mode
+    if (!mcFile.is_open()) {
+        cout << "Error occurred while clearing file.\n";
+        return mcFile; // Return false indicating failure
+    }
     
     cout << "File has been cleared.\n";
-    exit(EXIT_SUCCESS);
+    return mcFile; // Return true indicating success
 }
 bitset<32> ToBin(string imm,int para) {
     bitset<32> bin(0);
@@ -566,7 +569,6 @@ int main() {
                regex_search(line,match,pattern);
                if(match.size()!=0){
                   tempFile<<line<<"\n";
-
                   text=text+4;
                 }
 
@@ -594,10 +596,32 @@ int main() {
                     match = *next;
                     matchs = match.str();
                     int datav;
-                    if (regex_search(matchs, match, pattern3)) datav = stoi(matchs, nullptr, 16);
-                    else datav = stoi(matchs);
+                    if (regex_search(matchs, match, pattern3)){ 
+                        try {
+                        datav = std::stoi(matchs, nullptr, 16); // Convert hexadecimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: word data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    } else {
+                    try {
+                    datav = std::stoi(matchs); // Convert decimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: word data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    }
                     if (datav < lowlimitdec || datav > uplimitdec) {
-                        mcFile << "Error\n";
+                        clear(mcFile);
+                        mcFile << "Error word out of bounds\n";
+                        mcFile.close();
+                        exit(EXIT_SUCCESS);
                         ++next;
                         continue;
                     }
@@ -663,10 +687,33 @@ int main() {
                     match = *next;
                     matchs = match.str();
                     int datav;
-                    if (regex_search(matchs, match, pattern3)) datav = stoi(matchs, nullptr, 16);
-                    else datav = stoi(matchs);
+                     if (regex_search(matchs, match, pattern3)){ 
+                        try {
+                        datav = std::stoi(matchs, nullptr, 16); // Convert hexadecimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: half data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    } else {
+                    try {
+                    datav = std::stoi(matchs); // Convert decimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: half data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    }
                     if (datav < lowlimitdech || datav > uplimitdech) {
                         mcFile << "Error\n";
+                        clear(mcFile);
+                        mcFile << "Error half value out of bounds\n";
+                        mcFile.close();
+                        exit(EXIT_SUCCESS);
                         ++next;
                         continue;
                     }
@@ -700,10 +747,33 @@ int main() {
                     match = *next;
                     matchs = match.str();
                     int datav;
-                    if (regex_search(matchs, match, pattern3)) datav = stoi(matchs, nullptr, 16);
-                    else datav = stoi(matchs);
+                     if (regex_search(matchs, match, pattern3)){ 
+                        try {
+                        datav = std::stoi(matchs, nullptr, 16); // Convert hexadecimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error:   Byte data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    } else {
+                    try {
+                    datav = std::stoi(matchs); // Convert decimal string to integer
+                    } catch (const std::out_of_range& e) {
+                    // stoi failed due to out of range value
+                    clear(mcFile);
+                    mcFile << "Error: Byte data out of range\n";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
+                    }
+                    }
                     if (datav < lowlimitdecb || datav > uplimitdecb) {
                         mcFile << "Error\n";
+                        clear(mcFile);
+                        mcFile << "Error: Byte data out of range\n";
+                        mcFile.close();
+                        exit(EXIT_FAILURE);
                         ++next;
                         continue;
                     }
@@ -790,8 +860,14 @@ int main() {
     while (getline(file1, line)) {
         //cout << line << endl;
         mc = mcode(line);
-        if(mc==bitset<32>(0))
-        clear(mcFile);
+          if (mc == bitset<32>(0)) {
+            clear(mcFile);
+            mcFile << line << "  ";
+            mcFile  << "Wrong syntax/Invalid instruction";
+            mcFile << "\n";
+            mcFile.close();
+            exit(EXIT_SUCCESS);
+        }
         mcFile << toHex(ic) << " 0x" << BinToHex(mc) << endl;
         //cout << toHex(ic) << " " << hex<< mc.to_ullong() << endl;
         ic+=4;
@@ -799,6 +875,7 @@ int main() {
     
     mcFile.close();
     file1.close();
+}
 }
 
 
