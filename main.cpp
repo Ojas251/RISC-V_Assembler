@@ -55,7 +55,7 @@ ofstream& clear(ofstream& mcFile) {
     cout << "File has been cleared.\n";
     return mcFile; // Return true indicating success
 }
-bitset<32> ToBin(string imm,int para) {
+bitset<32> ToBin(string imm,int para,ofstream& mcFile) {
     bitset<32> bin(0);
     int neg=0,i;
      long int up12,low12,up20,low20,immval;
@@ -95,12 +95,18 @@ bitset<32> ToBin(string imm,int para) {
     //cout<<"imm:"<<immval<<endl;
     if(para==12){
         if(immval>up12 || immval<low12){
-          cout<<"ERROR"<<endl; 
+                    clear(mcFile);
+                    mcFile << "instruction has out of bounds immediate ";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
         }
     }
     else{
         if(immval>up20 || immval<low20){
-          cout<<"ERROR"<<endl;
+              clear(mcFile);
+                    mcFile << "Instruction has out of bounds immediate value ";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
         }
     }
     bitset<32> bin32(bin.to_ulong());
@@ -148,7 +154,7 @@ bitset<32> R(string Inst, bitset<32> mc){
     return mc;    
 }
 
-bitset<32> I(bitset<32> inst, string asm_instr) {
+bitset<32> I(bitset<32> inst, string asm_instr,ofstream& mcFile) {
     smatch match;
     regex pattern(R"(x([1-2]\d|3[01]|\d))");
     regex_search(asm_instr, match, pattern);
@@ -161,7 +167,7 @@ bitset<32> I(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str(),12));
+    bitset<32> imm(ToBin(match.str(),12,mcFile));
     imm<<=20;
     inst|=rd;
     inst|=rs1;
@@ -171,7 +177,7 @@ bitset<32> I(bitset<32> inst, string asm_instr) {
 }
 
 
-bitset<32> U(bitset<32> inst, string asm_instr) {
+bitset<32> U(bitset<32> inst, string asm_instr,ofstream& mcFile) {
     smatch match;
     regex pattern(R"(x([1-2]\d|3[01]|\d))");
     regex_search(asm_instr, match, pattern);
@@ -180,7 +186,7 @@ bitset<32> U(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((0x[\dA-Fa-f]{1,8}|[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str(),20));
+    bitset<32> imm(ToBin(match.str(),20,mcFile));
     cout << imm << endl;
     imm<<=12;
     inst|=rd;
@@ -189,7 +195,7 @@ bitset<32> U(bitset<32> inst, string asm_instr) {
     return inst;
 }
 
-bitset<32> S(bitset<32> inst, string asm_instr) {
+bitset<32> S(bitset<32> inst, string asm_instr,ofstream& mcFile) {
     smatch match;
     regex pattern(R"(x([1-2]\d|3[01]|\d))");
     regex_search(asm_instr, match, pattern);
@@ -198,7 +204,7 @@ bitset<32> S(bitset<32> inst, string asm_instr) {
     asm_instr = match.suffix();
     regex pattern_imm(R"((-?0x[\dA-Fa-f]{1,8}|-?[1-9]\d*|0))");
     regex_search(asm_instr, match, pattern_imm);
-    bitset<32> imm(ToBin(match.str(),12));
+    bitset<32> imm(ToBin(match.str(),12,mcFile));
     bitset<32> imm1=(imm>>5)<<25, imm2=(imm & bitset<32>(31))<<7;
     asm_instr = match.suffix();
     regex_search(asm_instr, match, pattern);
@@ -311,7 +317,7 @@ bitset<32> UJ(bitset<32> inst, string asm_instr){
     return inst;
 }
 
-bitset<32> I_L(bitset<32> inst, string asm_instr){
+bitset<32> I_L(bitset<32> inst, string asm_instr,ofstream& mcFile){
     smatch match;
     regex pattern(R"(x([1-2]\d|3[01]|\d))"); 
     regex_search(asm_instr, match, pattern);
@@ -361,7 +367,7 @@ bitset<32> I_L(bitset<32> inst, string asm_instr){
 
 }
 
-bitset<32> mcode(string asm_inst){
+bitset<32> mcode(string asm_inst,ofstream& mcFile){
     bitset<32> inst(0);
     if (regex_match(asm_inst, add)) {
         inst = bitset<32>("00000000000000000000000000110011");
@@ -413,51 +419,51 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, sb)) {
         inst = bitset<32>("00000000000000000000000000100011");
-        inst = S(inst, asm_inst);
+        inst = S(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, sw)) {
         inst = bitset<32>("00000000000000000010000000100011");
-        inst = S(inst, asm_inst);
+       inst = S(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, sd)) {
         inst = bitset<32>("00000000000000000011000000100011");
-        inst = S(inst, asm_inst);
+        inst = S(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, sh)) {
         inst = bitset<32>("00000000000000000001000000100011");
-        inst = S(inst, asm_inst);
+        inst = S(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, lb)) {
         inst = bitset<32>("00000000000000000000000000000011");
-        inst = I_L(inst, asm_inst);
+        inst = I_L(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, lw)) {
         inst = bitset<32>("00000000000000000010000000000011");
-        inst = I_L(inst, asm_inst);
+       inst = I_L(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, ld)) {
         inst = bitset<32>("00000000000000000011000000000011");
-        inst = I_L(inst, asm_inst);
+        inst = I_L(inst, asm_inst,mcFile);
         }
     else if(regex_match(asm_inst,lh)) {
         inst = bitset<32>("00000000000000000001000000000011");
-        inst = I_L(inst, asm_inst); 
+         inst = I_L(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, addi)) {
         inst = bitset<32>("00000000000000000000000000010011");
-        inst = I(inst, asm_inst);
+        inst = I(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, andi)) {
         inst = bitset<32>("00000000000000000111000000010011");
-        inst = I(inst, asm_inst);
+        inst = I(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, ori)) {
         inst = bitset<32>("00000000000000000110000000010011");
-        inst = I(inst, asm_inst);
+        inst = I(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, jalr)) {
         inst = bitset<32>("00000000000000000000000001100111");
-        inst = I_L(inst, asm_inst);
+        inst = I_L(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, bne)) {
         inst = bitset<32>("00000000000000000001000001100011");
@@ -477,11 +483,11 @@ bitset<32> mcode(string asm_inst){
         }
     else if (regex_match(asm_inst, lui)) {
         inst = bitset<32>("00000000000000000000000000110111");
-        inst = U(inst, asm_inst);
+        inst = U(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, auipc)) {
         inst = bitset<32>("00000000000000000000000000010111");
-        inst = U(inst, asm_inst);
+        inst = U(inst, asm_inst,mcFile);
         }
     else if (regex_match(asm_inst, jal)) {
         inst = bitset<32>("00000000000000000000000001101111");
@@ -619,7 +625,11 @@ int main() {
                 }
                 regex_search(line,match,patt_err);
                 if(match.size()==0){
-                    mcFile<<"ERROR\n";
+                    clear(mcFile);
+                    mcFile << line << "\n";
+                    mcFile << "Instruction is gibberish ";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
                 }
                 continue;
             }
@@ -970,13 +980,17 @@ int main() {
                 
                 regex_search(line,match,patt_err);
                 if(match.size()==0){
-                    mcFile<<"ERROR\n";
+                    clear(mcFile);
+                    mcFile << line << "\n";
+                    mcFile << "Instruction is gibberish ";
+                    mcFile.close();
+                    exit(EXIT_FAILURE);
                 }
                continue;
             }
               if(dcount==0){
             clear(mcFile);
-            mcFile << "Wrong syntax of dataaa";
+            mcFile << "Wrong syntax of data";
             mcFile.close();
             exit(EXIT_FAILURE);
         }
@@ -1011,7 +1025,7 @@ int main() {
     bitset<32> mc(0);
     while (getline(file1, line)) {
         //cout << line << endl;
-        mc = mcode(line);
+        mc = mcode(line,mcFile);
           if (mc == bitset<32>(0)) {
             clear(mcFile);
             mcFile << line << "  ";
@@ -1028,4 +1042,3 @@ int main() {
     mcFile.close();
     file1.close();
 }
-
