@@ -24,5 +24,5 @@ def compare(mc_insts, dumped_file):
             i += 1
     return success
 
-mc_insts = mcode("mc.txt")
+mc_insts = mcode("output.mc")
 if compare(mc_insts, "dump.txt") : print("All Good!")
