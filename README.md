@@ -134,12 +134,16 @@ The generated machine code for the sample input will be written to the `output.m
 - May not handle all edge cases or optimizations.
 
 ## Warnings
--The directive `.word` is used for word, `.dword` for double word, `.half` for half word, `.byte` for byte, and `.asciz` for ASCII strings specified within double quotation marks.
--Labels in RISC-V follow the same format as identifiers in programming languages like C/C++. They must start with a letter (lowercase or uppercase) or underscore, followed by a combination of letters, underscores, or digits of any length, and end with a colon `:`.
--Pseudo instructions are not supported.
--Immediate and offset values in instructions can be specified in hexadecimal format (beginning with 0x) or decimal format.
--Operands in instructions can be separated by commas or spaces.
--The `.asciz` directive does not directly support the creation of arrays of strings. Instead, only individual strings can be stored one at a time using `.asciz`.
+- The directive `.word` is used for word, `.dword` for double word, `.half` for half word, `.byte` for byte, and `.asciz` for ASCII strings specified within double quotation marks.
+
+- Labels in RISC-V follow the same format as identifiers in programming languages like C/C++. They must start with a letter (lowercase or uppercase) or underscore, followed by a combination of letters, underscores, or digits of any length, and end with a colon `:`.
+- Pseudo instructions are not supported.
+
+- Immediate and offset values in instructions can be specified in hexadecimal format (beginning with 0x) or decimal format.
+  
+- Operands in instructions can be separated by commas or spaces.
+  
+- The `.asciz` directive does not directly support the creation of arrays of strings. Instead, only individual strings can be stored one at a time using `.asciz`.
 
 ## Contributors
 - Jyoti (https://github.com/jyoti7777)
