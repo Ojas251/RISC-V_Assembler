@@ -440,11 +440,11 @@ bitset<32> mcode(string asm_inst){
         inst = I_L(inst, asm_inst);
         }
     else if(regex_match(asm_inst,lh)) {
-        inst = bitset<32>("0000000000000000000100000000011");
+        inst = bitset<32>("00000000000000000001000000000011");
         inst = I_L(inst, asm_inst); 
         }
     else if (regex_match(asm_inst, addi)) {
-        inst = bitset<32>("0000000000000000000000000010011");
+        inst = bitset<32>("00000000000000000000000000010011");
         inst = I(inst, asm_inst);
         }
     else if (regex_match(asm_inst, andi)) {
@@ -630,7 +630,7 @@ int main() {
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
                     clear(mcFile);
-                    mcFile << "Multiple labels in data";
+                    mcFile << "Label Already Exists";
                     mcFile.close();
                     exit(EXIT_SUCCESS);
                 }
@@ -700,7 +700,7 @@ int main() {
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
                      clear(mcFile);
-                    mcFile << "Multiple labels in data";
+                    mcFile << "Label Already Exists";
                     mcFile.close();
                     exit(EXIT_SUCCESS);
                 }
@@ -766,7 +766,7 @@ int main() {
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
                       clear(mcFile);
-                    mcFile << "Multiple labels in data";
+                    mcFile << "Label Already Exists";
                     mcFile.close();
                     exit(EXIT_SUCCESS);
                 }
@@ -837,7 +837,7 @@ int main() {
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
                       clear(mcFile);
-                    mcFile << "Multiple labels in data";
+                    mcFile << "Label Already Exists";
                     mcFile.close();
                     exit(EXIT_SUCCESS);
                 }
@@ -908,7 +908,7 @@ int main() {
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
                      clear(mcFile);
-                    mcFile << "Multiple labels in data";
+                    mcFile << "Label Already Exists";
                     mcFile.close();
                     exit(EXIT_SUCCESS);
                 }
@@ -917,12 +917,18 @@ int main() {
                 matchs=match.str();
                 matchs.erase(0,1);
                 matchs.erase(matchs.size() - 1, 1);
+                int size = matchs.size()+1;
                 stringstream ss;
                 ss << hex << data;
                 hexdata = ss.str();
-
-                mcFile<<"0x"<<hexdata<<" "<<matchs<<"\n";
-                data=data+matchs.size();
+                stringstream hexstr;
+                while(matchs.size()) {
+                    hexstr << hex << (unsigned int)matchs[0];
+                    matchs.erase(0, 1);
+                }
+                mcFile << "0x" << hexdata << " " << "0x" << hexstr.str() << "00" << "\n";
+                
+                data=data+size;
                 line=match.suffix();
                 regex_search(line,match,patt_err);
                 if(match.size()==0){
@@ -959,9 +965,9 @@ int main() {
                 if(match.size()!=0){
                   tempFile<<line<<"\n";
                   text=text+4;
-                  
+                  line=match.suffix();
                 }
-                line=match.suffix();
+                
                 regex_search(line,match,patt_err);
                 if(match.size()==0){
                     mcFile<<"ERROR\n";
