@@ -46,7 +46,7 @@ long int pc=0, ic=0;
 
 ofstream& clear(ofstream& mcFile) {
     mcFile.close(); // Close the file
-    mcFile.open("mc.txt", ofstream::out | ofstream::trunc); // Reopen the file in truncate mode
+    mcFile.open("output.mc", ofstream::out | ofstream::trunc); // Reopen the file in truncate mode
     if (!mcFile.is_open()) {
         cout << "Error occurred while clearing file.\n";
         return mcFile; // Return false indicating failure
@@ -524,14 +524,14 @@ int data_lab(string line,long int text){
 
 
 int main() {
-    ifstream file("help.s");     // file with the instructions
-    ofstream mcFile("mc.txt");
+    ifstream file("input.asm");     // file with the instructions
+    ofstream mcFile("output.mc");
     int dcount=0;    
     if (!file.is_open()) {
         cout << "Error opening file\n";
         return 0;
     }
-
+    mcFile << "<DATA SEGMENT>" << endl;
     string line;
     char format;
     smatch match,matchtemp;
@@ -583,8 +583,8 @@ int main() {
 
     regex patt_err(R"(^\s*$)");
    
-    ofstream tempFile("temp.s");
-    //ofstream mcFile("mc.txt");
+    ofstream tempFile("temp.asm");
+    //ofstream mcFile("output.mc");
 
     while(getline(file,line)){
         line = regex_replace(line, patt_comments, "");
@@ -1019,9 +1019,8 @@ int main() {
     
     file.close();
     tempFile.close();
-    ifstream file1("temp.s");
-
-    mcFile << endl;
+    ifstream file1("temp.asm");
+    mcFile << "<TEXT SEGMENT>" << endl;
     bitset<32> mc(0);
     while (getline(file1, line)) {
         //cout << line << endl;
@@ -1038,7 +1037,7 @@ int main() {
         //cout << toHex(ic) << " " << hex<< mc.to_ullong() << endl;
         ic+=4;
     }
-    
+    mcFile << "<HEAP SEGMENT>" << endl << "0x10008000 0x00000000"<< endl << "<STACK SEGMENT>" << endl << "0x7FFFFFDC 0x00000000" << endl;
     mcFile.close();
     file1.close();
 }
