@@ -553,7 +553,7 @@ int main() {
    
     regex patt_data(R"(^\s*\.data\s*)");
     
-    regex patt_label(R"([_a-zA-Z]\w*(?=:))"); 
+    regex patt_label(R"([_a-zA-Z]\w*:)"); 
 
     regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s+)");
     
@@ -1028,5 +1028,4 @@ int main() {
     mcFile.close();
     file1.close();
 }
-
 
