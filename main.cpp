@@ -499,7 +499,7 @@ bitset<32> mcode(string asm_inst){
 int main() {
     ifstream file("help.s");     // file with the instructions
     ofstream mcFile("mc.txt");
-    int dcount=0;    
+    int dcount=0;
     if (!file.is_open()) {
         cout << "Error opening file\n";
         return 0;
@@ -531,17 +531,17 @@ int main() {
    
     regex patt_data(R"(^\s*\.data\s*(:){0,1})");
     
-    regex patt_label(R"(^\s*[_a-zA-Z]\w*\s*:\s*)");
+    regex patt_label(R"(\s*[_a-zA-Z]\w*\s*:\s*)");
    
-    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.word)");
+    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.word\s+)");
     
-    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.dword)");
+    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.dword\s+)");
     
-    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.byte)");
+    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.byte\s+)");
    
-    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.half)");
+    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.half\s+)");
     
-    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.asciz)");
+    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,1}\s*\.asciz\s+)");
     
     regex patt_int(R"(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*)");
     
@@ -561,9 +561,10 @@ int main() {
         regex_search(line,match,patt_all);
         
         if(match.size()!=0){
-
+            dcount=0;
             regex_search(line,match,patt_text);
             if(match.size()!=0){
+                dcount++; 
                line = match.suffix();
                cout<< line<<endl;
                regex_search(line,match,pattern);
@@ -577,6 +578,7 @@ int main() {
          
             regex_search(line,match,patt_data);
             if (match.size()!=0){
+                dcount++;
                 //cout << "yes\n"<<line<<endl;
                 line = match.suffix();      
                 regex_search(line,match,pattern);
@@ -590,6 +592,7 @@ int main() {
             
             regex_search(line,match,patt_word);
             if(match.size()!=0){
+                dcount++;
                 sregex_iterator next(line.begin(), line.end(), patt_int);
                 sregex_iterator end;
                 while (next != end) {
@@ -649,6 +652,7 @@ int main() {
            
              regex_search(line,match,patt_dword);
             if(match.size()!=0){
+                dcount++;
                 sregex_iterator next(line.begin(), line.end(), patt_int);
                 sregex_iterator end;
                 while (next != end) {
@@ -700,6 +704,7 @@ int main() {
             }
             regex_search(line,match,patt_half);
             if(match.size()!=0){
+                dcount++;
                 sregex_iterator next(line.begin(), line.end(), patt_int);
                 sregex_iterator end;
                 while (next != end) {
@@ -760,6 +765,7 @@ int main() {
             
             regex_search(line,match,patt_byte);
             if(match.size()!=0){
+                dcount++;
                 sregex_iterator next(line.begin(), line.end(), patt_int);
                 sregex_iterator end;
                 while (next != end) {
@@ -816,7 +822,7 @@ int main() {
             regex_search(line,match,patt_asciz);
             
             if(match.size()!=0){
-                
+                dcount++;
                 regex_search(line,match,patt_str);
                 line=match.suffix();
                 matchs=match.str();
@@ -834,7 +840,7 @@ int main() {
                 continue;
             }
             regex_search(line,match,patt_label);
-            if(match.size()!=0){ 
+            if(match.size()!=0){  
                sregex_iterator next(line.begin(), line.end(), patt_label);
                sregex_iterator end;
                while (next != end) { 
@@ -864,15 +870,22 @@ int main() {
                 }
                continue;
             }
-      
+        if(dcount==0){
+            clear(mcFile);
+            mcFile << "Wrong syntax of data";
+            mcFile.close();
+            exit(EXIT_FAILURE);
+        }
         }
         else{
+            cout << line << "\n" ;
               regex_search(line,match,pattern);
               if(match.size()!=0){
                   tempFile<<line<<"\n";
                   text=text+4;
               }
            }
+
     }
     cout<<"labels:\n";
     for(int i=0;i<labels.size();i++){
@@ -903,6 +916,36 @@ int main() {
     mcFile.close();
     file1.close();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
