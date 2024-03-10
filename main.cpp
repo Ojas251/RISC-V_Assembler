@@ -555,15 +555,15 @@ int main() {
     
     regex patt_label(R"([_a-zA-Z]\w*:)"); 
 
-    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s+)");
+    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s*(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$)");
+
+    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.dword\s*(?=(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$))");
     
-    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.dword\s+)");
-    
-    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.byte\s+)");
+    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.byte\s*(?=(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$))");
    
-    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.half\s+)");
+    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.half\s*(?=(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$))");
     
-    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.asciz\s+)");
+    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.asciz\s*(?=(".*")$))");
     
     regex patt_int(R"(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*)");
     
