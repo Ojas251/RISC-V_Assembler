@@ -525,7 +525,7 @@ int data_lab(string line,long int text){
 
 int main() {
     ifstream file("input.asm");     // file with the instructions
-    ofstream mcFile("output.mc");
+    ofstream mcFile("temp2.mc");
     int dcount=0;    
     if (!file.is_open()) {
         cout << "Error opening file\n";
@@ -1019,25 +1019,31 @@ int main() {
     
     file.close();
     tempFile.close();
+    mcFile.close();
+    ofstream finalfile("output.mc");
+    ifstream tempfile("temp2.mc");
     ifstream file1("temp.asm");
-    mcFile << "<TEXT SEGMENT>" << endl;
+    finalfile << "<TEXT SEGMENT>" << endl;
     bitset<32> mc(0);
     while (getline(file1, line)) {
         //cout << line << endl;
-        mc = mcode(line,mcFile);
+        mc = mcode(line,finalfile);
           if (mc == bitset<32>(0)) {
-            clear(mcFile);
-            mcFile << line << "  ";
-            mcFile  << "Wrong syntax/Invalid instruction";
-            mcFile << "\n";
-            mcFile.close();
+            clear(finalfile);
+            finalfile << line << "  ";
+            finalfile  << "Wrong syntax/Invalid instruction";
+            finalfile << "\n";
+            finalfile.close();
             exit(EXIT_SUCCESS);
         }
-        mcFile << toHex(ic) << " 0x" << BinToHex(mc) << endl;
+        finalfile << toHex(ic) << " 0x" << BinToHex(mc) << endl;
         //cout << toHex(ic) << " " << hex<< mc.to_ullong() << endl;
         ic+=4;
     }
-    mcFile << "<HEAP SEGMENT>" << endl << "0x10008000 0x00000000"<< endl << "<STACK SEGMENT>" << endl << "0x7FFFFFDC 0x00000000" << endl;
-    mcFile.close();
+    // string line;
+    while (getline(tempfile, line)) finalfile << line << endl;
+    tempfile.close();    
+    finalfile << "<HEAP SEGMENT>" << endl << "0x10008000 0x00000000"<< endl << "<STACK SEGMENT>" << endl << "0x7FFFFFDC 0x00000000" << endl;
+    finalfile.close();
     file1.close();
 }
