@@ -128,6 +128,14 @@ The generated machine code for the sample input will be written to the `output.m
 
 0x0000000c 0x009463b3
 
+## Testing:
+To verify the accuracy of the contents within `output.mc`, you can utilize `check_mc.py`. Here's how:
+
+1. Save your own machine code, that you want to compare `output.mc` with, content into a file named `dump.txt`.
+2. Ensure both `output.mc` and `dump.txt` reside in the same directory.
+3. Execute `check_mc.py`.
+4. In case of discrepancies, the script will indicate the specific lines that do not match.
+5. If all contents align, you'll receive the reassuring message "All Good".
 
 ## Limitations
 - Currently supports a limited set of RISC-V instructions.
