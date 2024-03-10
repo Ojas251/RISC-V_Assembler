@@ -83,16 +83,26 @@ These directives can be used to define and allocate data in the data segment and
 ## Sample Input
 A sample RISC-V assembly file (`input.s`) might look like this:
 .data
+
 arr: .word 0x12 -2 24 0xcde
+
 n: .byte 4
 
+
 .text
+
 main:
+
 add x1, x2, x3
+
 addi x3, x4, 0x30
+
 beq x4, x5, exit
+
 or x7, x8, x9
+
 exit:
+
 
 ## Sample Output
 The generated machine code for the sample input will be written to the `mc.txt` file as follow:
