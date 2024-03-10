@@ -555,7 +555,7 @@ int main() {
     
     regex patt_label(R"([_a-zA-Z]\w*:)"); 
 
-    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s*(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$)");
+    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s*(?=(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$))");
 
     regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.dword\s*(?=(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*(,)?\s*)*$))");
     
