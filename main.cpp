@@ -7,7 +7,7 @@
 #include <stdint.h>
 using namespace std;
 
-vector<pair<string,long int>> labels,data_label;
+vector<pair<string,long int>> labels;
 
 regex add(R"(^[ \t]*add[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
 regex _and(R"(^[ \t]*and[ \t]+x(\d|[12]\d|3[01])([ \t]*,[ \t]*x(\d|[12]\d|3[01])[ \t]*,[ \t]*|[ \t]+x(\d|[12]\d|3[01])[ \t]+)x(\d|[12]\d|3[01])[ \t]*$)");
@@ -503,13 +503,13 @@ int data_lab(string line,long int text){
     while (next != end) {
     match = *next;
     matchs = match.str();
-    auto it = find_if(data_label.begin(), data_label.end(), [matchs](const pair<string, long int>& p) {
+    auto it = find_if(labels.begin(), labels.end(), [matchs](const pair<string, long int>& p) {
         return p.first == matchs;
     });
-    if(it!=data_label.end()){
+    if(it!=labels.end()){
         return -1;
     }
-    data_label.push_back(make_pair(matchs,text));
+    labels.push_back(make_pair(matchs,text));
     next++;
     } 
     return 0;             
@@ -555,15 +555,15 @@ int main() {
     
     regex patt_label(R"([_a-zA-Z]\w*(?=:))"); 
 
-    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word)");
+    regex patt_word(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.word\s+)");
     
-    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.dword)");
+    regex patt_dword(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.dword\s+)");
     
-    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.byte)");
+    regex patt_byte(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.byte\s+)");
    
-    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.half)");
+    regex patt_half(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.half\s+)");
     
-    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.asciz)");
+    regex patt_asciz(R"(^\s*([_a-zA-Z]\w*\s*:\s*){0,}\s*\.asciz\s+)");
     
     regex patt_int(R"(-?(0x(\d|[a-f]|[A-F])+|\d+)\s*)");
     
@@ -585,9 +585,10 @@ int main() {
         regex_search(line,match,patt_all);
         
         if(match.size()!=0){
-
+            dcount=0;
             regex_search(line,match,patt_text);
             if(match.size()!=0){
+                dcount++;
                line = match.suffix();
                cout<< line<<endl;
                regex_search(line,match,pattern);
@@ -606,6 +607,7 @@ int main() {
          
             regex_search(line,match,patt_data);
             if (match.size()!=0){
+                dcount++;
                 //cout << "yes\n"<<line<<endl;
                 line = match.suffix();      
                 regex_search(line,match,pattern);
@@ -624,9 +626,13 @@ int main() {
             
             regex_search(line,match,patt_word);
             if(match.size()!=0){
+                dcount++;
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
-                    mcFile<<"ERROR\n";
+                    clear(mcFile);
+                    mcFile << "Multiple labels in data";
+                    mcFile.close();
+                    exit(EXIT_SUCCESS);
                 }
                 line=match.suffix();
                 sregex_iterator next(line.begin(), line.end(), patt_int);
@@ -690,9 +696,13 @@ int main() {
            
              regex_search(line,match,patt_dword);
             if(match.size()!=0){
+                dcount++;
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
-                    mcFile<<"ERROR\n";
+                     clear(mcFile);
+                    mcFile << "Multiple labels in data";
+                    mcFile.close();
+                    exit(EXIT_SUCCESS);
                 }
                 line=match.suffix();
                 sregex_iterator next(line.begin(), line.end(), patt_int);
@@ -752,9 +762,13 @@ int main() {
             }
             regex_search(line,match,patt_half);
             if(match.size()!=0){
+                dcount++;
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
-                    mcFile<<"ERROR\n";
+                      clear(mcFile);
+                    mcFile << "Multiple labels in data";
+                    mcFile.close();
+                    exit(EXIT_SUCCESS);
                 }
                 line=match.suffix();
                 sregex_iterator next(line.begin(), line.end(), patt_int);
@@ -819,9 +833,13 @@ int main() {
             
             regex_search(line,match,patt_byte);
             if(match.size()!=0){
+                dcount++;
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
-                    mcFile<<"ERROR\n";
+                      clear(mcFile);
+                    mcFile << "Multiple labels in data";
+                    mcFile.close();
+                    exit(EXIT_SUCCESS);
                 }
                 line=match.suffix();
                 sregex_iterator next(line.begin(), line.end(), patt_int);
@@ -886,9 +904,13 @@ int main() {
             regex_search(line,match,patt_asciz);
             
             if(match.size()!=0){
+                dcount++;
                 flag=data_lab(line,text);         //here
                 if(flag==-1){
-                    mcFile<<"ERROR\n";
+                     clear(mcFile);
+                    mcFile << "Multiple labels in data";
+                    mcFile.close();
+                    exit(EXIT_SUCCESS);
                 }
                 regex_search(line,match,patt_str);
                 line=match.suffix();
@@ -909,7 +931,8 @@ int main() {
                 continue;
             }
             regex_search(line,match,patt_label);
-            if(match.size()!=0){ 
+            if(match.size()!=0){
+                dcount++; 
                sregex_iterator next(line.begin(), line.end(), patt_label);
                sregex_iterator end;
                while (next != end) { 
@@ -945,24 +968,35 @@ int main() {
                 }
                continue;
             }
-      
+              if(dcount==0){
+            clear(mcFile);
+            mcFile << "Wrong syntax of dataaa";
+            mcFile.close();
+            exit(EXIT_FAILURE);
+        }
         }
         else{
+              if (!regex_search(line, match, patt_err)){
               regex_search(line,match,pattern);
               if(match.size()!=0){
                   tempFile<<line<<"\n";
                   text=text+4;
               }
+               else {
+                  clear(mcFile);
+            mcFile << line << "\n";
+            mcFile << "Instruction is gibberish ";
+            mcFile.close();
+            exit(EXIT_FAILURE);
+              }
+            }
            }
     }
     cout<<"labels:\n";
     for(int i=0;i<labels.size();i++){
         cout << labels[i].first<<","<<labels[i].second<<"\n";
     }
-    cout<<"data_label:\n";
-    for(int i=0;i<data_label.size();i++){
-        cout << data_label[i].first<<","<<data_label[i].second<<"\n";
-    }
+    
     file.close();
     tempFile.close();
     ifstream file1("temp.s");
@@ -988,6 +1022,5 @@ int main() {
     mcFile.close();
     file1.close();
 }
-
 
 
