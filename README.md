@@ -1,22 +1,22 @@
 # RISC-V to Machine Code Converter
 
 ## Overview
-This program converts RISC-V assembly code into machine code. It takes a RISC-V assembly file `input.s` as input and generates the corresponding machine code in a text file `mc.txt`.
+This program converts RISC-V assembly code into machine code. It takes a RISC-V assembly file `input.asm` as input and generates the corresponding machine code in a text file `output.mc`.
 
 ## Installation
 - Clone this repository to your local machine:
 git clone https://github.com/jyoti7777/RISC-V_Assembler
 
 ## Usage
-1. Ensure you have a valid RISC-V assembly file `input.s` in the same directory as `main.cpp`.
-2. Place your assembly code in `input.s`.
+1. Ensure you have a valid RISC-V assembly file `input.asm` in the same directory as `main.cpp`.
+2. Place your assembly code in `input.asm`.
 3. Compile and run the program.
     Use the following instructions in the terminal of directory:
         $ gcc main.cpp
         $ ./a.out
-4. If all the code is correct, check the generated machine code in the `mc.txt` file located in the project directory to find the equivalent machine code for the given input.
-5. In case of an error, you will find the error in the `mc.txt`.
-6. In the `mc.txt` file, you will find 4 segments, DATA, TEXT, STACK, HEAP each containing corresponding data or instructions.
+4. If all the code is correct, check the generated machine code in the `output.mc` file located in the project directory to find the equivalent machine code for the given input.
+5. In case of an error, you will find the error in the `output.mc`.
+6. In the `output.mc` file, you will find 4 segments, DATA, TEXT, STACK, HEAP each containing corresponding data or instructions.
 
 ## Supported Instructions
 R format:
@@ -81,7 +81,7 @@ These directives can be used to define and allocate data in the data segment and
 - Handles data and memory storage in multiple formats.
 
 ## Sample Input
-A sample RISC-V assembly file (`input.s`) might look like this:
+A sample RISC-V assembly file (`input.asm`) might look like this:
 .data
 
 arr: .word 0x12 -2 24 0xcde
@@ -105,7 +105,7 @@ exit:
 
 
 ## Sample Output
-The generated machine code for the sample input will be written to the `mc.txt` file as follow:
+The generated machine code for the sample input will be written to the `output.mc` file as follow:
 0x10000000 0x00000012
 
 0x10000004 0xfffffffe
@@ -132,6 +132,14 @@ The generated machine code for the sample input will be written to the `mc.txt` 
 ## Limitations
 - Currently supports a limited set of RISC-V instructions.
 - May not handle all edge cases or optimizations.
+
+## Warnings
+-The directive `.word` is used for word, `.dword` for double word, `.half` for half word, `.byte` for byte, and `.asciz` for ASCII strings specified within double quotation marks.
+-Labels in RISC-V follow the same format as identifiers in programming languages like C/C++. They must start with a letter (lowercase or uppercase) or underscore, followed by a combination of letters, underscores, or digits of any length, and end with a colon `:`.
+-Pseudo instructions are not supported.
+-Immediate and offset values in instructions can be specified in hexadecimal format (beginning with 0x) or decimal format.
+-Operands in instructions can be separated by commas or spaces.
+-The `.asciz` directive does not directly support the creation of arrays of strings. Instead, only individual strings can be stored one at a time using `.asciz`.
 
 ## Contributors
 - Jyoti (https://github.com/jyoti7777)
